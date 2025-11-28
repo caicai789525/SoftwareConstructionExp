@@ -1,8 +1,8 @@
 package dao
 
 import (
-    "github.com/bugoutianzhen123/SoftwareConstructionExp/domain"
-    "gorm.io/gorm"
+	"github.com/bugoutianzhen123/SoftwareConstructionExp/domain"
+	"gorm.io/gorm"
 )
 
 type GormDAO struct { db *gorm.DB }

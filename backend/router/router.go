@@ -1,14 +1,15 @@
 package router
 
 import (
-    "github.com/gin-contrib/cors"
-    "github.com/gin-gonic/gin"
-    "github.com/bugoutianzhen123/SoftwareConstructionExp/handle"
-    "github.com/bugoutianzhen123/SoftwareConstructionExp/auth"
-    "github.com/bugoutianzhen123/SoftwareConstructionExp/domain"
-    "github.com/bugoutianzhen123/SoftwareConstructionExp/repository"
-    "fmt"
-    "time"
+	"fmt"
+	"time"
+
+	"github.com/bugoutianzhen123/SoftwareConstructionExp/auth"
+	"github.com/bugoutianzhen123/SoftwareConstructionExp/domain"
+	"github.com/bugoutianzhen123/SoftwareConstructionExp/handle"
+	"github.com/bugoutianzhen123/SoftwareConstructionExp/repository"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 func NewRouter(h *handle.Handlers, ah *handle.AuthHandlers, repo repository.Repo) *gin.Engine {

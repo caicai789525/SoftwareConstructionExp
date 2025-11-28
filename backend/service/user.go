@@ -1,9 +1,10 @@
 package service
 
 import (
-    "errors"
-    "golang.org/x/crypto/bcrypt"
-    "github.com/bugoutianzhen123/SoftwareConstructionExp/domain"
+	"errors"
+
+	"github.com/bugoutianzhen123/SoftwareConstructionExp/domain"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func (s *Service) CreateUser(u *domain.User) (*domain.User, error) {

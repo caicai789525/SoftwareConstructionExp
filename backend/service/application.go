@@ -1,9 +1,10 @@
 package service
 
 import (
-    "errors"
-    "strconv"
-    "github.com/bugoutianzhen123/SoftwareConstructionExp/domain"
+	"errors"
+	"strconv"
+
+	"github.com/bugoutianzhen123/SoftwareConstructionExp/domain"
 )
 
 func (s *Service) Apply(a *domain.Application) (*domain.Application, error) {
