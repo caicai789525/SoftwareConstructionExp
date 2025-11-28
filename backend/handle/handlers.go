@@ -132,6 +132,20 @@ func (h *Handlers) ListApplications(c *gin.Context) {
     c.JSON(200, views)
 }
 
+func (h *Handlers) ListMyApplications(c *gin.Context) {
+    cu := currentUser(c)
+    if cu == nil || cu.Role != domain.RoleStudent { c.JSON(403, gin.H{"error":"无权限"}); return }
+    page := 1; size := 50
+    if v := c.Query("page"); v != "" { if n, err := strconv.Atoi(v); err==nil && n>0 { page=n } }
+    if v := c.Query("page_size"); v != "" { if n, err := strconv.Atoi(v); err==nil && n>0 { size=n } }
+    views, err := h.svc.ListStudentApplicationsWithScores(cu.ID, c.Query("status"))
+    if err != nil { c.JSON(400, gin.H{"error": err.Error()}); return }
+    start := (page-1)*size; if start < 0 { start = 0 }
+    end := start+size; if end > len(views) { end = len(views) }
+    if start > len(views) { views = []domain.ApplicationView{} } else { views = views[start:end] }
+    c.JSON(200, views)
+}
+
 func (h *Handlers) UpdateApplicationStatus(c *gin.Context) {
     var b struct { ApplicationID int64 `json:"application_id"`; Status string `json:"status"` }
     if !parseJSON(c, &b) { return }
@@ -143,4 +157,18 @@ func (h *Handlers) UpdateApplicationStatus(c *gin.Context) {
     }
     if err := h.svc.UpdateApplicationStatus(b.ApplicationID, b.Status); err != nil { c.JSON(400, gin.H{"error": err.Error()}); return }
     c.JSON(200, gin.H{"ok": true})
+}
+
+func (h *Handlers) ListTrackings(c *gin.Context) {
+    appIDStr := c.Query("application_id")
+    if appIDStr == "" { c.JSON(400, gin.H{"error":"缺少application_id"}); return }
+    appID, err := strconv.ParseInt(appIDStr, 10, 64)
+    if err != nil { c.JSON(400, gin.H{"error":"application_id格式错误"}); return }
+    if cu := currentUser(c); cu != nil && cu.Role == domain.RoleStudent {
+        app := h.svc.Repo().GetApplication(appID)
+        if app == nil { c.JSON(404, gin.H{"error":"申请不存在"}); return }
+        if app.StudentID != cu.ID { c.JSON(403, gin.H{"error":"无权查看该申请进度"}); return }
+    }
+    ts := h.svc.ListTrackingsByApplication(appID)
+    c.JSON(200, ts)
 }

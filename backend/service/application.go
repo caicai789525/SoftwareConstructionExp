@@ -31,6 +31,23 @@ func (s *Service) ListApplicationsWithScores(projectID string, status string) ([
     return views, nil
 }
 
+func (s *Service) ListStudentApplicationsWithScores(studentID int64, status string) ([]domain.ApplicationView, error) {
+    apps := s.repo.ListApplications()
+    var views []domain.ApplicationView
+    for _, a := range apps {
+        if a.StudentID != studentID { continue }
+        if status != "" && a.Status != status { continue }
+        stu := s.repo.GetUser(a.StudentID)
+        proj := s.repo.GetProject(a.ProjectID)
+        if stu == nil || proj == nil { continue }
+        score := 0.0
+        res := s.matcher.Match(stu, []*domain.Project{proj})
+        if len(res) > 0 { score = res[0].Score }
+        views = append(views, domain.ApplicationView{Application: a, Student: stu, Project: proj, Score: score})
+    }
+    return views, nil
+}
+
 func (s *Service) UpdateApplicationStatus(appID int64, status string) error {
     if status == "" { return errors.New("缺少状态") }
     return s.repo.UpdateApplicationStatus(appID, status)

@@ -52,12 +52,14 @@ func NewRouter(h *handle.Handlers, ah *handle.AuthHandlers, repo repository.Repo
 
     applications := api.Group("/applications")
     applications.GET("", auth.RequireRole(domain.RoleTeacher, domain.RoleAdmin), h.ListApplications)
+    applications.GET("/mine", auth.RequireRole(domain.RoleStudent), h.ListMyApplications)
 
     application := api.Group("/application")
     application.POST("/status", auth.RequireRole(domain.RoleTeacher, domain.RoleAdmin), h.UpdateApplicationStatus)
 
     tracking := api.Group("/tracking")
     tracking.POST("", auth.RequireRole(domain.RoleTeacher, domain.RoleAdmin), h.Tracking)
+    tracking.GET("", auth.RequireRole(domain.RoleStudent, domain.RoleTeacher, domain.RoleAdmin), h.ListTrackings)
 
     feedback := api.Group("/feedback")
     feedback.POST("", auth.RequireRole(domain.RoleTeacher, domain.RoleAdmin), h.Feedback)
@@ -73,5 +75,6 @@ func NewRouter(h *handle.Handlers, ah *handle.AuthHandlers, repo repository.Repo
 
     admin := api.Group("/admin").Use(auth.RequireRole(domain.RoleAdmin))
     admin.GET("/stats", handle.NewAdminHandlers(h.Service()).Stats)
+    admin.POST("/user/role", handle.NewAdminHandlers(h.Service()).UpdateUserRole)
     return r
 }

@@ -8,6 +8,13 @@ import (
 
 type AppConfig struct {
     Database string `yaml:"database"`
+    OpenAI   OpenAIConfig `yaml:"openai_api"`
+}
+
+type OpenAIConfig struct {
+    DeepseekAPIKey string `yaml:"deepseek_api_key"`
+    BaseURL        string `yaml:"base_url"`
+    Model          string `yaml:"model"`
 }
 
 func Load() (*AppConfig, error) {

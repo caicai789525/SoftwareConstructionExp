@@ -35,3 +35,8 @@ func (s *Service) ListUsers(role string) []*domain.User {
     for _, u := range us { if string(u.Role) == role { out = append(out, u) } }
     return out
 }
+
+func (s *Service) UpdateUserRole(userID int64, role domain.Role) error {
+    if role == "" { return errors.New("缺少角色") }
+    return s.repo.UpdateUserRole(userID, role)
+}

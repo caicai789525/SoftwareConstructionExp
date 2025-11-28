@@ -1,22 +1,33 @@
 package service
 
 import (
-    "context"
-    "encoding/json"
-    "fmt"
-    "os"
-    "strings"
-    "github.com/tmc/langchaingo/llms"
-    "github.com/tmc/langchaingo/llms/openai"
-    "github.com/bugoutianzhen123/SoftwareConstructionExp/domain"
+	"context"
+	"encoding/json"
+	"fmt"
+	"os"
+	"strings"
+
+	"github.com/bugoutianzhen123/SoftwareConstructionExp/config"
+	"github.com/bugoutianzhen123/SoftwareConstructionExp/domain"
+	"github.com/tmc/langchaingo/llms"
+	"github.com/tmc/langchaingo/llms/openai"
 )
 
 type LLMMatcher struct{ llm llms.Model }
 
 func NewLLMMatcher() (domain.Matcher, error) {
+    cfg, _ := config.Load()
     model := os.Getenv("SC_LLM_MODEL")
-    if model == "" { model = "gpt-3.5-turbo" }
+    if model == "" {
+        if cfg != nil && cfg.OpenAI.Model != "" { model = cfg.OpenAI.Model } else { model = "deepseek-chat" }
+    }
     baseURL := os.Getenv("SC_LLM_BASE_URL")
+    if baseURL == "" {
+        if cfg != nil && cfg.OpenAI.BaseURL != "" { baseURL = cfg.OpenAI.BaseURL } else { baseURL = "https://api.deepseek.com/v1" }
+    }
+    if os.Getenv("OPENAI_API_KEY") == "" {
+        if cfg != nil && cfg.OpenAI.DeepseekAPIKey != "" { os.Setenv("OPENAI_API_KEY", cfg.OpenAI.DeepseekAPIKey) }
+    }
     var opts []openai.Option
     opts = append(opts, openai.WithModel(model))
     if baseURL != "" { opts = append(opts, openai.WithBaseURL(baseURL)) }

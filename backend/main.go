@@ -9,6 +9,7 @@ import (
     "github.com/bugoutianzhen123/SoftwareConstructionExp/router"
     "github.com/bugoutianzhen123/SoftwareConstructionExp/service"
     "github.com/bugoutianzhen123/SoftwareConstructionExp/domain"
+    "github.com/bugoutianzhen123/SoftwareConstructionExp/config"
     "os"
 )
 
@@ -18,6 +19,10 @@ func main() {
     var matcher domain.Matcher = service.SimpleMatcher{}
     if os.Getenv("SC_LLM_ENABLE") == "1" {
         if m, err := service.NewLLMMatcher(); err == nil { matcher = m }
+    } else {
+        if cfg, err := config.Load(); err == nil && cfg.OpenAI.DeepseekAPIKey != "" {
+            if m, err := service.NewLLMMatcher(); err == nil { matcher = m }
+        }
     }
     svc := service.NewService(repo, matcher)
     h := handle.NewHandlers(svc)

@@ -12,6 +12,7 @@ type Repo interface {
     ListUsers() []*domain.User
     GetUser(id int64) *domain.User
     GetUserByEmail(email string) *domain.User
+    UpdateUserRole(id int64, role domain.Role) error
 
     AddProject(p *domain.Project) (*domain.Project, error)
     ListProjects() []*domain.Project
@@ -22,10 +23,11 @@ type Repo interface {
 	GetApplication(id int64) *domain.Application
 	UpdateApplicationStatus(id int64, status string) error
     AddTracking(t *domain.Tracking) (*domain.Tracking, error)
+    ListTrackingsByApplication(appID int64) []*domain.Tracking
     AddFeedback(f *domain.Feedback) (*domain.Feedback, error)
-	ListFeedbacks() []*domain.Feedback
+    ListFeedbacks() []*domain.Feedback
     AddDocument(d *domain.Document) (*domain.Document, error)
-	ListDocumentsByApplication(appID int64) []*domain.Document
+    ListDocumentsByApplication(appID int64) []*domain.Document
 }
 
 type RepoImpl struct {
@@ -66,6 +68,14 @@ func (r *RepoImpl) GetUser(id int64) *domain.User {
 	return u
 }
 func (r *RepoImpl) GetUserByEmail(email string) *domain.User { return r.dao.GetUserByEmail(email) }
+func (r *RepoImpl) UpdateUserRole(id int64, role domain.Role) error {
+    err := r.dao.UpdateUserRole(id, role)
+    if err == nil {
+        if u := r.cache.GetUser(id); u != nil { u.Role = role }
+        r.cache.InvalidateUsers()
+    }
+    return err
+}
 
 func (r *RepoImpl) AddProject(p *domain.Project) (*domain.Project, error) {
     out, err := r.dao.AddProject(p)
@@ -103,6 +113,7 @@ func (r *RepoImpl) UpdateApplicationStatus(id int64, status string) error {
 	return r.dao.UpdateApplicationStatus(id, status)
 }
 func (r *RepoImpl) AddTracking(t *domain.Tracking) (*domain.Tracking, error) { return r.dao.AddTracking(t) }
+func (r *RepoImpl) ListTrackingsByApplication(appID int64) []*domain.Tracking { return r.dao.ListTrackingsByApplication(appID) }
 func (r *RepoImpl) AddFeedback(f *domain.Feedback) (*domain.Feedback, error) { return r.dao.AddFeedback(f) }
 func (r *RepoImpl) ListFeedbacks() []*domain.Feedback               { return r.dao.ListFeedbacks() }
 func (r *RepoImpl) AddDocument(d *domain.Document) (*domain.Document, error) { return r.dao.AddDocument(d) }

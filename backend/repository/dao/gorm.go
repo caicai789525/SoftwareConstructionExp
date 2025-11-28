@@ -31,6 +31,10 @@ func (d *GormDAO) GetUserByEmail(email string) *domain.User {
     return &u
 }
 
+func (d *GormDAO) UpdateUserRole(id int64, role domain.Role) error {
+    return d.db.Model(&domain.User{}).Where("id = ?", id).Update("role", role).Error
+}
+
 func (d *GormDAO) AddProject(p *domain.Project) (*domain.Project, error) {
     tx := d.db.Create(p)
     return p, tx.Error
@@ -70,6 +74,14 @@ func (d *GormDAO) UpdateApplicationStatus(id int64, status string) error {
 func (d *GormDAO) AddTracking(t *domain.Tracking) (*domain.Tracking, error) {
     tx := d.db.Create(t)
     return t, tx.Error
+}
+
+func (d *GormDAO) ListTrackingsByApplication(appID int64) []*domain.Tracking {
+    var items []domain.Tracking
+    d.db.Where("application_id = ?", appID).Find(&items)
+    var out []*domain.Tracking
+    for i := range items { out = append(out, &items[i]) }
+    return out
 }
 func (d *GormDAO) AddFeedback(f *domain.Feedback) (*domain.Feedback, error) {
     tx := d.db.Create(f)
