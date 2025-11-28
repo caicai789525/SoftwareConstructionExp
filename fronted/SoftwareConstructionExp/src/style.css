@@ -24,8 +24,6 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
 }
@@ -58,12 +56,29 @@ button:focus-visible {
   padding: 2em;
 }
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
+#app { min-height: 100vh }
+
+.container { max-width: 1120px; margin: 0 auto; padding: 16px }
+
+.grid { display: grid; gap: 16px }
+.grid-2 { grid-template-columns: 1fr 1fr }
+.grid-3 { grid-template-columns: repeat(3, 1fr) }
+@media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr } }
+
+.card { background: rgba(255,255,255,0.06); border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; padding: 16px }
+@media (prefers-color-scheme: light) { .card { background: #fff; border-color: #eee } }
+
+input, select, textarea { width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 8px; background: #fff; box-sizing: border-box }
+@media (prefers-color-scheme: dark) { input, select, textarea { background: #1a1a1a; border-color: #333; color: inherit } }
+
+.btn { border-radius: 8px; border: 1px solid #646cff; background: #646cff; color: #fff; padding: 8px 14px }
+.btn.secondary { border-color: #888; background: transparent; color: inherit }
+
+.toolbar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:10px }
+.card .toolbar { position: sticky; top: 60px; z-index: 8; background: rgba(255,255,255,0.7); backdrop-filter: blur(6px); padding: 8px 10px; margin: 0 0 12px 0; border-bottom: 1px solid #eee }
+@media (prefers-color-scheme: dark) { .card .toolbar { background: rgba(36,36,36,0.6); border-bottom-color: #333 } }
+.list { list-style:none; margin:0; padding:0 }
+.list li { padding:10px 0; border-bottom:1px solid #eee }
 
 @media (prefers-color-scheme: light) {
   :root {
