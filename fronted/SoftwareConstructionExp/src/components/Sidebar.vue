@@ -1,9 +1,11 @@
 <script setup>
+import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 const router = useRouter()
 const route = useRoute()
-const role = localStorage.getItem('role')
+const role = ref(sessionStorage.getItem('role')||'')
 function to(p){ router.push(p) }
+onMounted(()=>{ router.afterEach(()=>{ role.value = sessionStorage.getItem('role')||'' }) })
 </script>
 
 <template>
@@ -14,12 +16,14 @@ function to(p){ router.push(p) }
       <a :class="{active: route.path==='/student/apply'}" href="#" @click.prevent="to('/student/apply')">一键申请</a>
       <a :class="{active: route.path==='/student/applications'}" href="#" @click.prevent="to('/student/applications')">我的申请</a>
       <a :class="{active: route.path==='/student/docs'}" href="#" @click.prevent="to('/student/docs')">成果文档</a>
+      <a :class="{active: route.path==='/student/profile'}" href="#" @click.prevent="to('/student/profile')">个人信息</a>
     </div>
     <div class="section" v-if="role==='teacher'">
       <div class="title">教师</div>
       <a :class="{active: route.path==='/teacher/projects'}" href="#" @click.prevent="to('/teacher/projects')">项目管理</a>
       <a :class="{active: route.path==='/teacher/tracking'}" href="#" @click.prevent="to('/teacher/tracking')">过程跟踪</a>
       <a :class="{active: route.path==='/teacher/applications'}" href="#" @click.prevent="to('/teacher/applications')">学生申请</a>
+      <a :class="{active: route.path==='/teacher/stats'}" href="#" @click.prevent="to('/teacher/stats')">数据看板</a>
     </div>
     <div class="section" v-if="role==='admin'">
       <div class="title">管理员</div>

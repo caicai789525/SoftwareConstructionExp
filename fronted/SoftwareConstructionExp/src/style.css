@@ -73,6 +73,7 @@ input, select, textarea { width: 100%; padding: 8px 10px; border: 1px solid #ddd
 
 .btn { border-radius: 8px; border: 1px solid #646cff; background: #646cff; color: #fff; padding: 8px 14px }
 .btn.secondary { border-color: #888; background: transparent; color: inherit }
+.btn.large { padding: 10px 18px; font-size: 1.05em }
 
 .toolbar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:10px }
 .card .toolbar { position: sticky; top: 60px; z-index: 8; background: rgba(255,255,255,0.7); backdrop-filter: blur(6px); padding: 8px 10px; margin: 0 0 12px 0; border-bottom: 1px solid #eee }

@@ -35,6 +35,14 @@ func (d *GormDAO) UpdateUserRole(id int64, role domain.Role) error {
     return d.db.Model(&domain.User{}).Where("id = ?", id).Update("role", role).Error
 }
 
+func (d *GormDAO) UpdateUser(u *domain.User) (*domain.User, error) {
+    m := map[string]any{"name": u.Name, "email": u.Email, "skills": u.Skills}
+    if err := d.db.Model(&domain.User{}).Where("id = ?", u.ID).Updates(m).Error; err != nil { return nil, err }
+    var out domain.User
+    if err := d.db.First(&out, u.ID).Error; err != nil { return nil, err }
+    return &out, nil
+}
+
 func (d *GormDAO) AddProject(p *domain.Project) (*domain.Project, error) {
     tx := d.db.Create(p)
     return p, tx.Error

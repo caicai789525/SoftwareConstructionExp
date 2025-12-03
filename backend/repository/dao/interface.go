@@ -7,6 +7,7 @@ type DAO interface {
     ListUsers() []*domain.User
     GetUser(id int64) *domain.User
     GetUserByEmail(email string) *domain.User
+    UpdateUser(u *domain.User) (*domain.User, error)
     UpdateUserRole(id int64, role domain.Role) error
     AddProject(p *domain.Project) (*domain.Project, error)
     ListProjects() []*domain.Project

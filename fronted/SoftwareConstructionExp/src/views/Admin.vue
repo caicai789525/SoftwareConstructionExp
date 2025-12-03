@@ -12,7 +12,7 @@ const error = ref('')
 async function load() {
   try {
     const [s, us] = await Promise.all([
-      fetch('http://localhost:8080/api/admin/stats', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }).then(r=>r.json()),
+      fetch('http://localhost:8080/api/admin/stats', { headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` } }).then(r=>r.json()),
       api.listUsers('')
     ])
     stats.value = s
@@ -23,7 +23,7 @@ async function updateRole() {
   try {
     const res = await fetch('http://localhost:8080/api/admin/user/role', {
       method:'POST',
-      headers:{ 'Content-Type':'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` },
+      headers:{ 'Content-Type':'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` },
       body: JSON.stringify({ user_id: Number(userId.value), role: role.value })
     })
     const data = await res.json()

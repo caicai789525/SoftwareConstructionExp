@@ -2,11 +2,11 @@
 import { ref, onMounted } from 'vue'
 import { api } from '../api'
 import FilterBar from '../components/FilterBar.vue'
-const userId = Number(localStorage.getItem('user_id')||0)
+const userId = Number(sessionStorage.getItem('user_id')||0)
 const matches = ref([])
 const error = ref('')
 const matchQuery = ref('')
-async function loadData() { try { matches.value = await api.matches(userId) } catch(e){ error.value=e.message } }
+async function loadData() { try { matches.value = await api.matches(userId, 'fast=1&top_k=5') } catch(e){ error.value=e.message } }
 function filteredMatches() {
   if (!matchQuery.value) return matches.value
   const q = matchQuery.value.toLowerCase()

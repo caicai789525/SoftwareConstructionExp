@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { api } from '../api'
 import FilterBar from '../components/FilterBar.vue'
 const router = useRouter()
-const userId = Number(localStorage.getItem('user_id')||0)
+const userId = Number(sessionStorage.getItem('user_id')||0)
 const projects = ref([])
 const error = ref('')
 const q = ref('')

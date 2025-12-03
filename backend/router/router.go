@@ -43,6 +43,9 @@ func NewRouter(h *handle.Handlers, ah *handle.AuthHandlers, repo repository.Repo
     users := api.Group("/users")
     users.GET("", h.ListUsers)
     users.POST("", auth.RequireRole(domain.RoleAdmin), h.CreateUser)
+    users.GET(":id", h.GetUser)
+
+    api.GET("/me", h.Me)
 
     projects := api.Group("/projects")
     projects.GET("", h.ListProjects)
@@ -77,5 +80,6 @@ func NewRouter(h *handle.Handlers, ah *handle.AuthHandlers, repo repository.Repo
     admin := api.Group("/admin").Use(auth.RequireRole(domain.RoleAdmin))
     admin.GET("/stats", handle.NewAdminHandlers(h.Service()).Stats)
     admin.POST("/user/role", handle.NewAdminHandlers(h.Service()).UpdateUserRole)
+    api.PUT("/me", h.UpdateMe)
     return r
 }

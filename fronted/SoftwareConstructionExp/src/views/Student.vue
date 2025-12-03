@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { api, uploadDocument } from '../api'
 import FilterBar from '../components/FilterBar.vue'
-const userId = Number(localStorage.getItem('user_id')||0)
+const userId = Number(sessionStorage.getItem('user_id')||0)
 const matches = ref([])
 const myApps = ref([])
 const projects = ref([])

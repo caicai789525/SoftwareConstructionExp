@@ -1,13 +1,14 @@
 package service
 
 import (
-    "errors"
-    "strconv"
-    "github.com/bugoutianzhen123/SoftwareConstructionExp/domain"
+	"errors"
+	"strconv"
+
+	"github.com/bugoutianzhen123/SoftwareConstructionExp/domain"
 )
 
 func (s *Service) CreateProject(p *domain.Project) (*domain.Project, error) {
-    if p.TeacherID == 0 || p.Title == "" || len(p.Requirements) == 0 { return nil, errors.New("缺少必填字段") }
+    if p.TeacherID == 0 || p.Title == "" || p.Description == "" || len(p.Requirements) == 0 { return nil, errors.New("缺少必填字段") }
     p.Requirements = normalize(p.Requirements)
     p.Tags = normalize(p.Tags)
     return s.repo.AddProject(p)

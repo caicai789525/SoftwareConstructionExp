@@ -41,3 +41,16 @@ func (s *Service) UpdateUserRole(userID int64, role domain.Role) error {
     if role == "" { return errors.New("缺少角色") }
     return s.repo.UpdateUserRole(userID, role)
 }
+
+func (s *Service) UpdateMe(userID int64, name, email string, skills []string) (*domain.User, error) {
+    if name == "" || email == "" { return nil, errors.New("缺少必填字段") }
+    u := s.repo.GetUser(userID)
+    if u == nil { return nil, errors.New("用户不存在") }
+    if u.Email != email {
+        if existing := s.repo.GetUserByEmail(email); existing != nil { return nil, errors.New("邮箱已存在") }
+    }
+    u.Name = name
+    u.Email = email
+    u.Skills = normalize(skills)
+    return s.repo.UpdateUser(u)
+}

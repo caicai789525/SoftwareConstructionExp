@@ -13,6 +13,7 @@ type Repo interface {
     GetUser(id int64) *domain.User
     GetUserByEmail(email string) *domain.User
     UpdateUserRole(id int64, role domain.Role) error
+    UpdateUser(u *domain.User) (*domain.User, error)
 
     AddProject(p *domain.Project) (*domain.Project, error)
     ListProjects() []*domain.Project
@@ -75,6 +76,14 @@ func (r *RepoImpl) UpdateUserRole(id int64, role domain.Role) error {
         r.cache.InvalidateUsers()
     }
     return err
+}
+func (r *RepoImpl) UpdateUser(u *domain.User) (*domain.User, error) {
+    out, err := r.dao.UpdateUser(u)
+    if err == nil && out != nil {
+        r.cache.SetUser(out)
+        r.cache.InvalidateUsers()
+    }
+    return out, err
 }
 
 func (r *RepoImpl) AddProject(p *domain.Project) (*domain.Project, error) {

@@ -8,7 +8,7 @@ async function updateRole() {
   try {
     const res = await fetch('http://localhost:8080/api/admin/user/role', {
       method:'POST',
-      headers:{ 'Content-Type':'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` },
+      headers:{ 'Content-Type':'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` },
       body: JSON.stringify({ user_id: Number(userId.value), role: role.value })
     })
     const data = await res.json()

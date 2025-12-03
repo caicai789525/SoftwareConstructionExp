@@ -2,21 +2,35 @@
 import { ref, onMounted, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import Sidebar from "./components/Sidebar.vue";
+import { api } from "./api";
 const router = useRouter();
 const route = useRoute();
-const authed = ref(!!localStorage.getItem("token"));
-const role = ref(localStorage.getItem("role") || "");
+const authed = ref(!!sessionStorage.getItem("token"));
+const role = ref(sessionStorage.getItem("role") || "");
+const me = ref(null);
 const isAuthRoute = computed(
   () => route.path === "/login" || route.path === "/register"
 );
 function refreshAuth() {
-  authed.value = !!localStorage.getItem("token");
-  role.value = localStorage.getItem("role") || "";
+  authed.value = !!sessionStorage.getItem("token");
+  role.value = sessionStorage.getItem("role") || "";
+  if (authed.value) {
+    api
+      .me()
+      .then((u) => {
+        me.value = u;
+      })
+      .catch(() => {
+        me.value = null;
+      });
+  } else {
+    me.value = null;
+  }
 }
 function logout() {
-  localStorage.removeItem("token");
-  localStorage.removeItem("role");
-  localStorage.removeItem("user_id");
+  sessionStorage.removeItem("token");
+  sessionStorage.removeItem("role");
+  sessionStorage.removeItem("user_id");
   refreshAuth();
   router.push("/login");
 }
@@ -34,21 +48,12 @@ onMounted(() => {
       <a v-if="!authed" href="#" @click.prevent="router.push('/register')"
         >注册</a
       >
-      <a
-        v-if="role === 'student'"
-        href="#"
-        @click.prevent="router.push('/student')"
-        >学生端</a
+      <span v-if="me" class="user-info"
+        >{{ me.name }} · {{ me.email }} · {{ me.role }}</span
       >
-      <a
-        v-if="role === 'teacher'"
-        href="#"
-        @click.prevent="router.push('/teacher')"
-        >教师端</a
-      >
-      <a v-if="role === 'admin'" href="#" @click.prevent="router.push('/admin')"
-        >管理员端</a
-      >
+      <span v-if="role === 'student'" class="role-tag">学生端</span>
+      <span v-if="role === 'teacher'" class="role-tag">教师端</span>
+      <span v-if="role === 'admin'" class="role-tag">管理员端</span>
       <a v-if="authed" href="#" @click.prevent="logout">退出登录</a>
     </nav>
   </header>
@@ -98,5 +103,16 @@ onMounted(() => {
   padding: 12px;
   text-align: center;
   color: #888;
+}
+.role-tag {
+  display: inline-block;
+  padding: 6px 10px;
+  border: 1px solid #eee;
+  border-radius: 999px;
+  margin: 0 8px;
+}
+.user-info {
+  margin: 0 8px;
+  opacity: 0.85;
 }
 </style>

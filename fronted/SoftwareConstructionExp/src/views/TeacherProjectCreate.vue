@@ -3,8 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from '../api'
 const router = useRouter()
-const userId = Number(localStorage.getItem('user_id')||0)
-const step = ref(1)
+const userId = Number(sessionStorage.getItem('user_id')||0)
 const title = ref('')
 const desc = ref('')
 const reqInput = ref('')
@@ -17,8 +16,6 @@ function addReq(){ const v = reqInput.value.trim(); if(!v) return; requirements.
 function removeReq(i){ requirements.value = requirements.value.filter((_,idx)=>idx!==i) }
 function addTag(){ const v = tagInput.value.trim(); if(!v) return; tags.value = [...tags.value, v]; tagInput.value='' }
 function removeTag(i){ tags.value = tags.value.filter((_,idx)=>idx!==i) }
-function next(){ if(step.value<3) step.value++ }
-function prev(){ if(step.value>1) step.value-- }
 function validate(){ if(!title.value || !desc.value || requirements.value.length===0) return '请完善标题、描述与至少一个项目要求'; return '' }
 async function submit() {
   try {
@@ -33,18 +30,11 @@ async function submit() {
 
 <template>
   <section class="card">
-    <div class="stepper">
-      <div :class="['step', step===1?'active':'']">1 基本信息</div>
-      <div :class="['step', step===2?'active':'']">2 要求与标签</div>
-      <div :class="['step', step===3?'active':'']">3 预览与提交</div>
-    </div>
     <div class="toolbar">
-      <button class="btn secondary" @click="prev">上一步</button>
-      <button class="btn" v-if="step<3" @click="next">下一步</button>
-      <button class="btn" v-else @click="submit">发布</button>
+      <button class="btn large" @click="submit">发布项目</button>
       <span style="color:#4a4">{{ msg }}</span>
     </div>
-    <div v-if="step===1" class="form-grid">
+    <div class="form-grid">
       <div class="field">
         <label>项目标题</label>
         <input v-model="title" placeholder="请输入项目标题" />
@@ -54,9 +44,7 @@ async function submit() {
         <label>项目描述</label>
         <textarea v-model="desc" rows="5" placeholder="补充研究背景、目标与内容" />
       </div>
-    </div>
-    <div v-if="step===2" class="form-grid">
-      <div class="field">
+      <div class="field span-2">
         <label>项目要求</label>
         <div class="inline">
           <input v-model="reqInput" placeholder="如: python, nlp" />
@@ -66,7 +54,7 @@ async function submit() {
           <span v-for="(r,i) in requirements" :key="i" class="chip" @click="removeReq(i)">{{ r }} ×</span>
         </div>
       </div>
-      <div class="field">
+      <div class="field span-2">
         <label>项目标签</label>
         <div class="inline">
           <input v-model="tagInput" placeholder="如: 计算机视觉" />
@@ -75,18 +63,6 @@ async function submit() {
         <div class="chips">
           <span v-for="(t,i) in tags" :key="i" class="chip" @click="removeTag(i)">{{ t }} ×</span>
         </div>
-      </div>
-    </div>
-    <div v-if="step===3" class="preview">
-      <h3>{{ title }}</h3>
-      <p style="white-space:pre-wrap;">{{ desc }}</p>
-      <h4>项目要求</h4>
-      <ul class="list">
-        <li v-for="(r,i) in requirements" :key="i">{{ r }}</li>
-      </ul>
-      <h4>标签</h4>
-      <div class="chips">
-        <span v-for="(t,i) in tags" :key="i" class="chip">{{ t }}</span>
       </div>
     </div>
     <div class="error" v-if="error">{{ error }}</div>
@@ -103,9 +79,6 @@ async function submit() {
 .chips { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px }
 .chip { padding:6px 10px; border:1px solid #eee; border-radius:999px; background:#fff; cursor:pointer }
 @media (prefers-color-scheme: dark) { .chip { background:#1a1a1a; border-color:#333 } }
-.stepper { display:flex; gap:8px; margin-bottom:8px }
-.step { padding:6px 10px; border-radius:999px; border:1px solid #eee }
-.step.active { background:#646cff; color:#fff; border-color:#646cff }
-.preview h3 { margin:6px 0 }
+.btn.large { padding: 10px 18px; font-size: 1.05em }
 .error { color:#d33; margin-top:8px }
 </style>

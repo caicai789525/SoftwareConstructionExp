@@ -1,7 +1,7 @@
 const BASE = 'http://localhost:8080/api'
 
 function authHeaders() {
-  const token = localStorage.getItem('token')
+  const token = sessionStorage.getItem('token')
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
@@ -23,10 +23,13 @@ export const api = {
     return res
   },
   listUsers: (role) => req(`/users${role?`?role=${encodeURIComponent(role)}`:''}`),
+  getUser: (id) => req(`/users/${id}`),
+  me: () => req(`/me`),
+  updateMe: (body) => req('/me', { method:'PUT', body: JSON.stringify(body) }),
   createUser: (u) => req('/users', { method:'POST', body: JSON.stringify(u) }),
   listProjects: (teacher_id) => req(`/projects${teacher_id?`?teacher_id=${teacher_id}`:''}`),
   createProject: (p) => req('/projects', { method:'POST', body: JSON.stringify(p) }),
-  matches: (student_id) => req(`/matches?student_id=${student_id}`),
+  matches: (student_id, params) => req(`/matches?student_id=${student_id}${params?`&${params}`:''}`),
   apply: (a) => req('/apply', { method:'POST', body: JSON.stringify(a) }),
   listApplications: (params) => req(`/applications${params?`?${params}`:''}`),
   listMyApplications: (params) => req(`/applications/mine${params?`?${params}`:''}`),

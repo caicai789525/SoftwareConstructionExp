@@ -47,6 +47,31 @@ func (h *Handlers) ListUsers(c *gin.Context) {
     c.JSON(200, list)
 }
 
+func (h *Handlers) GetUser(c *gin.Context) {
+    idStr := c.Param("id")
+    id, err := strconv.ParseInt(idStr, 10, 64)
+    if err != nil { c.JSON(400, gin.H{"error":"id格式错误"}); return }
+    u := h.svc.Repo().GetUser(id)
+    if u == nil { c.JSON(404, gin.H{"error":"用户不存在"}); return }
+    c.JSON(200, u)
+}
+
+func (h *Handlers) Me(c *gin.Context) {
+    u := currentUser(c)
+    if u == nil { c.JSON(401, gin.H{"error":"未认证"}); return }
+    c.JSON(200, u)
+}
+
+func (h *Handlers) UpdateMe(c *gin.Context) {
+    u := currentUser(c)
+    if u == nil { c.JSON(401, gin.H{"error":"未认证"}); return }
+    var b struct { Name string `json:"name"`; Email string `json:"email"`; Skills []string `json:"skills"` }
+    if err := c.ShouldBindJSON(&b); err != nil { c.JSON(400, gin.H{"error":"invalid json"}); return }
+    updated, err := h.svc.UpdateMe(u.ID, b.Name, b.Email, b.Skills)
+    if err != nil { c.JSON(400, gin.H{"error": err.Error()}); return }
+    c.JSON(200, updated)
+}
+
 func (h *Handlers) CreateProject(c *gin.Context) {
     var p domain.Project
     if !parseJSON(c, &p) { return }
@@ -116,7 +141,16 @@ func (h *Handlers) Matches(c *gin.Context) {
     sid, err := strconv.ParseInt(sidStr, 10, 64)
     if err != nil { c.JSON(400, gin.H{"error": "student_id格式错误"}); return }
     if cu := currentUser(c); cu != nil && cu.Role == domain.RoleStudent && cu.ID != sid { c.JSON(403, gin.H{"error":"只能查看本人匹配"}); return }
-    res, err := h.svc.MatchForStudent(sid)
+    fast := false
+    if v := c.Query("fast"); v == "1" || v == "true" { fast = true }
+    topK := 0
+    if v := c.Query("top_k"); v != "" { if n, e := strconv.Atoi(v); e==nil { topK = n } }
+    var res []domain.MatchResult
+    if fast || topK > 0 {
+        res, err = h.svc.MatchForStudentOpt(sid, fast, topK)
+    } else {
+        res, err = h.svc.MatchForStudent(sid)
+    }
     if err != nil { c.JSON(404, gin.H{"error": err.Error()}); return }
     c.JSON(200, res)
 }
@@ -125,11 +159,10 @@ func (h *Handlers) ListApplications(c *gin.Context) {
     page := 1; size := 50
     if v := c.Query("page"); v != "" { if n, err := strconv.Atoi(v); err==nil && n>0 { page=n } }
     if v := c.Query("page_size"); v != "" { if n, err := strconv.Atoi(v); err==nil && n>0 { size=n } }
-    views, err := h.svc.ListApplicationsWithScores(c.Query("project_id"), c.Query("status"))
+    fast := false
+    if v := c.Query("fast"); v == "1" || v == "true" { fast = true }
+    views, err := h.svc.ListApplicationsWithScoresOpt(c.Query("project_id"), c.Query("status"), page, size, fast)
     if err != nil { c.JSON(400, gin.H{"error": err.Error()}); return }
-    start := (page-1)*size; if start < 0 { start = 0 }
-    end := start+size; if end > len(views) { end = len(views) }
-    if start > len(views) { views = []domain.ApplicationView{} } else { views = views[start:end] }
     c.JSON(200, views)
 }
 

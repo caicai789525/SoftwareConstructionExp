@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import StatCard from '../components/StatCard.vue'
 const stats = ref(null)
 async function load() {
-  const res = await fetch('http://localhost:8080/api/admin/stats', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
+  const res = await fetch('http://localhost:8080/api/admin/stats', { headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` } })
   stats.value = await res.json()
 }
 onMounted(load)
