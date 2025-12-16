@@ -1,7 +1,9 @@
 package router
 
 import (
+	"context"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/bugoutianzhen123/SoftwareConstructionExp/auth"
@@ -11,6 +13,25 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
+
+func TimeoutMiddleware(timeout time.Duration) gin.HandlerFunc {
+    return func(c *gin.Context) {
+        ctx, cancel := context.WithTimeout(c.Request.Context(), timeout)
+        defer cancel()
+        c.Request = c.Request.WithContext(ctx)
+        done := make(chan struct{})
+        go func() {
+            c.Next()
+            close(done)
+        }()
+        select {
+        case <-ctx.Done():
+            c.JSON(http.StatusGatewayTimeout, gin.H{"error":"请求超时"})
+            c.Abort()
+        case <-done:
+        }
+    }
+}
 
 func NewRouter(h *handle.Handlers, ah *handle.AuthHandlers, repo repository.Repo) *gin.Engine {
     r := gin.New()
@@ -35,6 +56,7 @@ func NewRouter(h *handle.Handlers, ah *handle.AuthHandlers, repo repository.Repo
         AllowCredentials: false,
         MaxAge:          12 * time.Hour,
     }))
+    r.Use(TimeoutMiddleware(5 * time.Second))
     pub := r.Group("/api")
     pub.POST("/auth/register", ah.Register)
     pub.POST("/auth/login", ah.Login)
@@ -43,7 +65,7 @@ func NewRouter(h *handle.Handlers, ah *handle.AuthHandlers, repo repository.Repo
     users := api.Group("/users")
     users.GET("", h.ListUsers)
     users.POST("", auth.RequireRole(domain.RoleAdmin), h.CreateUser)
-    users.GET(":id", h.GetUser)
+    users.GET("/:id", h.GetUser)
 
     api.GET("/me", h.Me)
 
@@ -65,7 +87,7 @@ func NewRouter(h *handle.Handlers, ah *handle.AuthHandlers, repo repository.Repo
     application.POST("/status", auth.RequireRole(domain.RoleTeacher, domain.RoleAdmin), h.UpdateApplicationStatus)
 
     tracking := api.Group("/tracking")
-    tracking.POST("", auth.RequireRole(domain.RoleTeacher, domain.RoleAdmin), h.Tracking)
+    tracking.POST("", auth.RequireRole(domain.RoleStudent, domain.RoleTeacher, domain.RoleAdmin), h.Tracking)
     tracking.GET("", auth.RequireRole(domain.RoleStudent, domain.RoleTeacher, domain.RoleAdmin), h.ListTrackings)
 
     feedback := api.Group("/feedback")

@@ -162,11 +162,17 @@ func (h *Handlers) Apply(c *gin.Context) {
 func (h *Handlers) Tracking(c *gin.Context) {
     var t domain.Tracking
     if !parseJSON(c, &t) { return }
-    if cu := currentUser(c); cu != nil && cu.Role == domain.RoleTeacher {
-        app := h.svc.Repo().GetApplication(t.ApplicationID)
-        if app == nil { c.JSON(404, gin.H{"error":"申请不存在"}); return }
+    cu := currentUser(c)
+    if cu == nil { c.JSON(401, gin.H{"error":"未认证"}); return }
+    app := h.svc.Repo().GetApplication(t.ApplicationID)
+    if app == nil { c.JSON(404, gin.H{"error":"申请不存在"}); return }
+    if cu.Role == domain.RoleTeacher {
         proj := h.svc.Repo().GetProject(app.ProjectID)
         if proj == nil || proj.TeacherID != cu.ID { c.JSON(403, gin.H{"error":"无权更新该申请"}); return }
+    }
+    if cu.Role == domain.RoleStudent {
+        if app.StudentID != cu.ID { c.JSON(403, gin.H{"error":"无权更新该申请"}); return }
+        if app.Status != "approved" { c.JSON(403, gin.H{"error":"仅已通过的申请可记录进度"}); return }
     }
     created, err := h.svc.AddTracking(&t)
     if err != nil { c.JSON(400, gin.H{"error": err.Error()}); return }

@@ -1,5 +1,7 @@
 package domain
 
+import "time"
+
 type Role string
 
 const (
@@ -35,9 +37,10 @@ type Application struct {
 }
 
 type Tracking struct {
-    ID            int64  `json:"id" gorm:"primaryKey"`
-    ApplicationID int64  `json:"application_id" gorm:"index"`
-    Progress      string `json:"progress"`
+    ID            int64     `json:"id" gorm:"primaryKey"`
+    ApplicationID int64     `json:"application_id" gorm:"index"`
+    Progress      string    `json:"progress"`
+    CreatedAt     time.Time `json:"created_at" gorm:"autoCreateTime"`
 }
 
 type Feedback struct {

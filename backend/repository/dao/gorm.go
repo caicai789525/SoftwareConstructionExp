@@ -102,7 +102,7 @@ func (d *GormDAO) AddTracking(t *domain.Tracking) (*domain.Tracking, error) {
 
 func (d *GormDAO) ListTrackingsByApplication(appID int64) []*domain.Tracking {
     var items []domain.Tracking
-    d.db.Where("application_id = ?", appID).Find(&items)
+    d.db.Where("application_id = ?", appID).Order("created_at desc").Find(&items)
     var out []*domain.Tracking
     for i := range items { out = append(out, &items[i]) }
     return out

@@ -1,16 +1,19 @@
 package main
 
 import (
-    "log"
+	"log"
+	"net/http"
+	"time"
 
-    "github.com/bugoutianzhen123/SoftwareConstructionExp/handle"
-    "github.com/bugoutianzhen123/SoftwareConstructionExp/ioc"
-    "github.com/bugoutianzhen123/SoftwareConstructionExp/repository"
-    "github.com/bugoutianzhen123/SoftwareConstructionExp/router"
-    "github.com/bugoutianzhen123/SoftwareConstructionExp/service"
-    "github.com/bugoutianzhen123/SoftwareConstructionExp/domain"
-    "github.com/bugoutianzhen123/SoftwareConstructionExp/config"
-    "os"
+	"os"
+
+	"github.com/bugoutianzhen123/SoftwareConstructionExp/config"
+	"github.com/bugoutianzhen123/SoftwareConstructionExp/domain"
+	"github.com/bugoutianzhen123/SoftwareConstructionExp/handle"
+	"github.com/bugoutianzhen123/SoftwareConstructionExp/ioc"
+	"github.com/bugoutianzhen123/SoftwareConstructionExp/repository"
+	"github.com/bugoutianzhen123/SoftwareConstructionExp/router"
+	"github.com/bugoutianzhen123/SoftwareConstructionExp/service"
 )
 
 func main() {
@@ -29,5 +32,12 @@ func main() {
     ah := handle.NewAuthHandlers(svc)
     r := router.NewRouter(h, ah, repo)
     log.Println("listening on :8080")
-    r.Run(":8080")
+    s := &http.Server{
+        Addr:         ":8080",
+        Handler:      r,
+        ReadTimeout:  10 * time.Second,
+        WriteTimeout: 10 * time.Second,
+    }
+    log.Fatal(s.ListenAndServe())
+    //r.Run(":8080")
 }
